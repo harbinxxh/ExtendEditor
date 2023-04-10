@@ -26,7 +26,7 @@ public class SuperManager : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core","Blutility"
+				"Core","Blutility","EditorScriptingUtilities"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
