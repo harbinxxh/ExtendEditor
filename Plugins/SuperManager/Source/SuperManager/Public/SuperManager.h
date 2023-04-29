@@ -19,6 +19,12 @@ private:
 
 	void InitCBMenuExtention();
 
+	TSharedRef<FExtender> CustomCBMenuExtender(const TArray<FString>& SelectedPaths);
+
+	void AddCBMenuEntry(class FMenuBuilder& MenuBuilder);
+
+	void OnDeleteUnusedAssetButtionClicked();
+
 #pragma endregion
 
 };
