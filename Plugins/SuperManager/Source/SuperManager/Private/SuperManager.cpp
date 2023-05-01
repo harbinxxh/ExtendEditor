@@ -2,6 +2,9 @@
 
 #include "SuperManager.h"
 #include "ContentBrowserModule.h"
+#include "DebugHeader.h"
+#include "EditorAssetLibrary.h"
+#include "ObjectTools.h"
 
 #define LOCTEXT_NAMESPACE "FSuperManagerModule"
 
@@ -49,6 +52,9 @@ TSharedRef<FExtender> FSuperManagerModule::CustomCBMenuExtender(const TArray<FSt
 			EExtensionHook::After,
 			TSharedPtr<FUICommandList>(),
 			FMenuExtensionDelegate::CreateRaw(this, &FSuperManagerModule::AddCBMenuEntry));
+		
+		//把获取到的文件夹信息保存到 FolderPathsSelected 成员变量中
+		FolderPathsSelected = SelectedPaths;
 	}
 
 	return MenuExtender;
@@ -66,7 +72,55 @@ void FSuperManagerModule::AddCBMenuEntry(class FMenuBuilder& MenuBuilder)
 
 void FSuperManagerModule::OnDeleteUnusedAssetButtionClicked()
 {
+	if (FolderPathsSelected.Num() > 1)
+	{
+		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("You can only do this to one folder"));
+		return;
+	}
+	//DebugHeader::Print(TEXT("Currently selected folder: ") + FolderPathsSelected[0], FColor::Green);
 
+	TArray<FString> AssetsPathNames = UEditorAssetLibrary::ListAssets(FolderPathsSelected[0]);
+
+	if (AssetsPathNames.Num() == 0)
+	{
+		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("No asset found under selected folder"));
+	}
+
+	EAppReturnType::Type ConfirmResult =
+		DebugHeader::ShowMsgDialog(EAppMsgType::YesNo, TEXT("A total of ") + FString::FromInt(AssetsPathNames.Num()) + TEXT(" found.\nWoudle you like to proccceed?"));
+
+	if (ConfirmResult == EAppReturnType::No) return;
+
+	TArray<FAssetData> UnusedAssetsDataArray;
+
+	for (const FString& AssetPathName:AssetsPathNames)
+	{
+		//Don't touch root folder
+		if ( AssetPathName.Contains(TEXT("Collections")) || AssetPathName.Contains(TEXT("Developers")) )
+		{
+			return;
+		}
+
+		if (!UEditorAssetLibrary::DoesAssetExist(AssetPathName)) continue;
+
+		TArray<FString> AssetRefrencers =
+			UEditorAssetLibrary::FindPackageReferencersForAsset(AssetPathName);
+
+		if (AssetRefrencers.Num() == 0)
+		{
+			const FAssetData UnusedData = UEditorAssetLibrary::FindAssetData(AssetPathName);
+			UnusedAssetsDataArray.Add(UnusedData);
+		}
+	}
+
+	if (UnusedAssetsDataArray.Num() > 0)
+	{
+		ObjectTools::DeleteAssets(UnusedAssetsDataArray);
+	}
+	else
+	{
+		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("No unused asset found under selected folder"));
+	}
 }
 
 #pragma endregion
