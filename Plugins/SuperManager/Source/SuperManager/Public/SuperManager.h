@@ -27,6 +27,8 @@ private:
 
 	void OnDeleteUnusedAssetButtionClicked();
 
+	void FixUpRedirectors();
+
 #pragma endregion
 
 };
