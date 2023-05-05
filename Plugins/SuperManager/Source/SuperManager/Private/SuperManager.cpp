@@ -31,6 +31,7 @@ void FSuperManagerModule::InitCBMenuExtention()
 
 	//右键单击文件夹时，请求弹出的菜单路径
 	//Called to request the menu when right clicking on a path
+	//Get hold of all the menu extenders
 	TArray<FContentBrowserMenuExtender_SelectedPaths>& ContentBrowserModuleMenuExtenders = 
 	ContentBrowserModule.GetAllPathViewContextMenuExtenders();
 
@@ -40,6 +41,7 @@ void FSuperManagerModule::InitCBMenuExtention()
 	//ContentBrowserModuleMenuExtenders.Add(CustomCBMenuDelegate);
 
 	//  代理第二种方式
+	//We add custom delegate to all the existing delegates
 	ContentBrowserModuleMenuExtenders.Add(FContentBrowserMenuExtender_SelectedPaths::
 		CreateRaw(this, &FSuperManagerModule::CustomCBMenuExtender));
 }
@@ -50,10 +52,10 @@ TSharedRef<FExtender> FSuperManagerModule::CustomCBMenuExtender(const TArray<FSt
 
 	if (SelectedPaths.Num() > 0)
 	{
-		MenuExtender->AddMenuExtension(FName("Delete"),
-			EExtensionHook::After,
-			TSharedPtr<FUICommandList>(),
-			FMenuExtensionDelegate::CreateRaw(this, &FSuperManagerModule::AddCBMenuEntry));
+		MenuExtender->AddMenuExtension(FName("Delete"), //Extention hook, position to insert
+			EExtensionHook::After, //Inserting before or after
+			TSharedPtr<FUICommandList>(), //Custom hot keys
+			FMenuExtensionDelegate::CreateRaw(this, &FSuperManagerModule::AddCBMenuEntry)); //Second binding, will define details for this menu entry
 		
 		//把获取到的文件夹信息保存到 FolderPathsSelected 成员变量中
 		FolderPathsSelected = SelectedPaths;
@@ -62,13 +64,14 @@ TSharedRef<FExtender> FSuperManagerModule::CustomCBMenuExtender(const TArray<FSt
 	return MenuExtender;
 }
 
+//Define deatils for the custom menu entry
 void FSuperManagerModule::AddCBMenuEntry(class FMenuBuilder& MenuBuilder)
 {
 	MenuBuilder.AddMenuEntry(
-		FText::FromString(TEXT("Delete Unused Assets")),
-		FText::FromString(TEXT("Safely delete all unused assets under folder")),
-		FSlateIcon(),
-		FExecuteAction::CreateRaw(this, &FSuperManagerModule::OnDeleteUnusedAssetButtionClicked)
+		FText::FromString(TEXT("Delete Unused Assets")), //Title text for menu entry
+		FText::FromString(TEXT("Safely delete all unused assets under folder")), //Tooltip text
+		FSlateIcon(), //Custom icon
+		FExecuteAction::CreateRaw(this, &FSuperManagerModule::OnDeleteUnusedAssetButtionClicked) //The actual function to excute
 	);
 }
 
@@ -83,13 +86,15 @@ void FSuperManagerModule::OnDeleteUnusedAssetButtionClicked()
 
 	TArray<FString> AssetsPathNames = UEditorAssetLibrary::ListAssets(FolderPathsSelected[0]);
 
+	//Whether there are assets under the folder
 	if (AssetsPathNames.Num() == 0)
 	{
-		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("No asset found under selected folder"));
+		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("No asset found under selected folder"), false);
 	}
 
 	EAppReturnType::Type ConfirmResult =
-		DebugHeader::ShowMsgDialog(EAppMsgType::YesNo, TEXT("A total of ") + FString::FromInt(AssetsPathNames.Num()) + TEXT(" found.\nWoudle you like to proccceed?"));
+		DebugHeader::ShowMsgDialog(EAppMsgType::YesNo, TEXT("A total of ") + FString::FromInt(AssetsPathNames.Num()) + 
+			TEXT("assets need to be checked.\nWould you like to proccceed?"), false);
 
 	if (ConfirmResult == EAppReturnType::No) return;
 
@@ -100,9 +105,12 @@ void FSuperManagerModule::OnDeleteUnusedAssetButtionClicked()
 	for (const FString& AssetPathName:AssetsPathNames)
 	{
 		//Don't touch root folder
-		if ( AssetPathName.Contains(TEXT("Collections")) || AssetPathName.Contains(TEXT("Developers")) )
+		if ( AssetPathName.Contains(TEXT("Collections")) ||
+			AssetPathName.Contains(TEXT("Developers")) ||
+			AssetPathName.Contains(TEXT("__ExternalActors__")) ||
+			AssetPathName.Contains(TEXT("__ExternalObjects__")))
 		{
-			return;
+			continue;
 		}
 
 		if (!UEditorAssetLibrary::DoesAssetExist(AssetPathName)) continue;
@@ -123,7 +131,7 @@ void FSuperManagerModule::OnDeleteUnusedAssetButtionClicked()
 	}
 	else
 	{
-		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("No unused asset found under selected folder"));
+		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("No unused asset found under selected folder"), false);
 	}
 }
 
