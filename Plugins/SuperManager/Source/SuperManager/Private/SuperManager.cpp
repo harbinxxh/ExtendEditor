@@ -73,6 +73,13 @@ void FSuperManagerModule::AddCBMenuEntry(class FMenuBuilder& MenuBuilder)
 		FSlateIcon(), //Custom icon
 		FExecuteAction::CreateRaw(this, &FSuperManagerModule::OnDeleteUnusedAssetButtionClicked) //The actual function to excute
 	);
+
+	MenuBuilder.AddMenuEntry(
+		FText::FromString(TEXT("Delete Empty Folders")),
+		FText::FromString(TEXT("Safely delete all empty folder")),
+		FSlateIcon(),
+		FExecuteAction::CreateRaw(this, &FSuperManagerModule::OnDeleteEmptyFoldersButtonClicked)
+	);
 }
 
 void FSuperManagerModule::OnDeleteUnusedAssetButtionClicked()
@@ -133,6 +140,11 @@ void FSuperManagerModule::OnDeleteUnusedAssetButtionClicked()
 	{
 		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("No unused asset found under selected folder"), false);
 	}
+}
+
+void FSuperManagerModule::OnDeleteEmptyFoldersButtonClicked()
+{
+	DebugHeader::Print(TEXT("Working"), FColor::Green);
 }
 
 void FSuperManagerModule::FixUpRedirectors()
