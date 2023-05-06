@@ -101,7 +101,7 @@ void FSuperManagerModule::OnDeleteUnusedAssetButtionClicked()
 
 	EAppReturnType::Type ConfirmResult =
 		DebugHeader::ShowMsgDialog(EAppMsgType::YesNo, TEXT("A total of ") + FString::FromInt(AssetsPathNames.Num()) + 
-			TEXT("assets need to be checked.\nWould you like to proccceed?"), false);
+			TEXT(" assets need to be checked.\nWould you like to proccceed?"), false);
 
 	if (ConfirmResult == EAppReturnType::No) return;
 
@@ -144,7 +144,57 @@ void FSuperManagerModule::OnDeleteUnusedAssetButtionClicked()
 
 void FSuperManagerModule::OnDeleteEmptyFoldersButtonClicked()
 {
-	DebugHeader::Print(TEXT("Working"), FColor::Green);
+	FixUpRedirectors();
+
+	TArray<FString> FolderPathsArray = UEditorAssetLibrary::ListAssets(FolderPathsSelected[0], true, true);
+	uint32 Counter = 0;
+
+	FString EmptyFolderPathsNames;
+	TArray<FString> EmptyFoldersPathsArray;
+
+	for (const FString& FolderPath:FolderPathsArray)
+	{
+		if (FolderPath.Contains(TEXT("Collections")) ||
+			FolderPath.Contains(TEXT("Developers")) ||
+			FolderPath.Contains(TEXT("__ExternalActors__")) ||
+			FolderPath.Contains(TEXT("__ExternalObjects__")))
+		{
+			continue;
+		}
+
+		if (!UEditorAssetLibrary::DoesDirectoryExist(FolderPath)) continue;
+
+		if (!UEditorAssetLibrary::DoesDirectoryHaveAssets(FolderPath))
+		{
+			EmptyFolderPathsNames.Append(FolderPath);
+			EmptyFolderPathsNames.Append(TEXT("\n"));
+
+			EmptyFoldersPathsArray.Add(FolderPath);
+		}
+	}
+
+	if (EmptyFoldersPathsArray.Num() == 0)
+	{
+		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("No empty folder found under selected folder"), false);
+		return;
+	}
+
+	//Delete Empty Folder
+	EAppReturnType::Type ConfirmResult = DebugHeader::ShowMsgDialog(EAppMsgType::OkCancel, 
+		TEXT("Empty folders found in:\n") + EmptyFolderPathsNames + TEXT("\nWould you like to delete all?"), false);
+
+	if (ConfirmResult == EAppReturnType::Cancel) return;
+
+	for (const FString& EmptyFolderPath:EmptyFoldersPathsArray)
+	{
+		UEditorAssetLibrary::DeleteDirectory(EmptyFolderPath) ?
+			++Counter : DebugHeader::Print(TEXT("Failed to delete " + EmptyFolderPath), FColor::Red);
+	}
+
+	if (Counter > 0)
+	{
+		DebugHeader::ShowNotifyInfo(TEXT("Successfully delete ") + FString::FromInt(Counter) + TEXT(" folder"));
+	}
 }
 
 void FSuperManagerModule::FixUpRedirectors()
