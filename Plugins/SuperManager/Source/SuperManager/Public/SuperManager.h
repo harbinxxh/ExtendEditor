@@ -26,8 +26,8 @@ private:
 	void AddCBMenuEntry(class FMenuBuilder& MenuBuilder);
 
 	void OnDeleteUnusedAssetButtionClicked();
-
 	void OnDeleteEmptyFoldersButtonClicked();
+	void OnAdvanceDeletionButtonClicked();
 
 	void FixUpRedirectors();
 
