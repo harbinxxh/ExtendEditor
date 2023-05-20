@@ -257,7 +257,7 @@ TSharedRef<SDockTab> FSuperManagerModule::OnSpawnAdvanceDeletionTab(const FSpawn
 		SNew(SDockTab).TabRole(ETabRole::NomadTab)
 		[
 			SNew(SAdvanceDeletionTab)
-			.AssetsDataArray(GetAllAssetDataUnderSelectedFolder())
+			.AssetsDataToStore(GetAllAssetDataUnderSelectedFolder())
 		];
 }
 
@@ -277,7 +277,7 @@ TArray< TSharedPtr<FAssetData> > FSuperManagerModule::GetAllAssetDataUnderSelect
 			continue;
 		}
 
-		if (!UEditorAssetLibrary::DoesDirectoryExist(AssetsPathName)) continue;
+		if (!UEditorAssetLibrary::DoesAssetExist(AssetsPathName)) continue;
 
 		const FAssetData Data = UEditorAssetLibrary::FindAssetData(AssetsPathName);
 
