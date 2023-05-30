@@ -4,6 +4,7 @@
 #include "SlateWidgets/AdvanceDeletionWidget.h"
 #include "SlateBasics.h"
 #include "DebugHeader.h"
+#include "SuperManager.h"
 
 void SAdvanceDeletionTab::Construct(const FArguments& InArgs)
 {
@@ -178,6 +179,16 @@ TSharedRef<SButton> SAdvanceDeletionTab::ConstructButtonForFowWidget(const TShar
 
 FReply SAdvanceDeletionTab::OnDeleteButtonClicked(TSharedPtr<FAssetData> ClickedAssetData)
 {
-	DebugHeader::Print(ClickedAssetData->AssetName.ToString() + TEXT(" is clicked"), FColor::Green);
+	FSuperManagerModule& SuperManagerModule =
+		FModuleManager::LoadModuleChecked<FSuperManagerModule>(TEXT("SuperManager"));
+
+	const bool bAssetDeleted = SuperManagerModule.DeleteSingleAssetForAssetList(*ClickedAssetData.Get());
+
+	if (bAssetDeleted)
+	{
+		//Refresh the list
+	}
+
+	//DebugHeader::Print(ClickedAssetData->AssetName.ToString() + TEXT(" is clicked"), FColor::Green);
 	return FReply::Handled();
 }

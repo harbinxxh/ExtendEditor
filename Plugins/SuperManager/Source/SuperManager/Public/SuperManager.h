@@ -33,6 +33,8 @@ private:
 
 #pragma endregion
 
+public:
+
 #pragma region CustomEditorTab
 
 	void RegisterAdvanceDeletionTab();
@@ -41,5 +43,9 @@ private:
 
 	TArray< TSharedPtr<FAssetData> > GetAllAssetDataUnderSelectedFolder();
 
+#pragma endregion
+
+#pragma region ProcessDataForAdvanceDeletionTab
+	bool DeleteSingleAssetForAssetList(const FAssetData& AssetDataToDelete);
 #pragma endregion
 };
