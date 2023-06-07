@@ -39,5 +39,20 @@ private:
 
 #pragma endregion
 
+#pragma region TabButtons
+
+	TSharedRef<SButton> ConstructDeleteAllButton();
+	FReply OnDeleteAllButtonClicked();
+
+	TSharedRef<SButton> ConstructSelectAllButton();
+	FReply OnSelectedAllButtonClicked();
+
+	TSharedRef<SButton> ConstructDeselectAllButton();
+	FReply OnDeselectAllButtonClicked();
+
+	TSharedRef<STextBlock> ConstructTextForTabButton(const FString& TextContent);
+
+#pragma endregion
+
 	FSlateFontInfo GetEmbossedTextFont() const { return FCoreStyle::Get().GetFontStyle(FName("EmbossedText")); }
 };
