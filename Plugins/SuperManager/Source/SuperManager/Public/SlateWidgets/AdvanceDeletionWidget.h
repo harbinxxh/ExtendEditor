@@ -54,5 +54,7 @@ private:
 
 #pragma endregion
 
+	TArray< TSharedPtr<FAssetData> > AssetsDataToDeleteArray;
+
 	FSlateFontInfo GetEmbossedTextFont() const { return FCoreStyle::Get().GetFontStyle(FName("EmbossedText")); }
 };

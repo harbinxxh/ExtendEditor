@@ -305,6 +305,16 @@ bool FSuperManagerModule::DeleteSingleAssetForAssetList(const FAssetData& AssetD
 	return false;
 }
 
+bool FSuperManagerModule::DeleteMultipleAssetForAssetList(const TArray<FAssetData>& AssetsToDelete)
+{
+	if (ObjectTools::DeleteAssets(AssetsToDelete))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 #pragma endregion
 
 #undef LOCTEXT_NAMESPACE

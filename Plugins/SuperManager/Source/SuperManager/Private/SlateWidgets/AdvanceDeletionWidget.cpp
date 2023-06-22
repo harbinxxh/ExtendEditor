@@ -99,6 +99,8 @@ TSharedRef< SListView< TSharedPtr<FAssetData> > > SAdvanceDeletionTab::Construct
 
 void SAdvanceDeletionTab::RefreshAssetListView()
 {
+	AssetsDataToDeleteArray.Empty();
+
 	if (ConstructedAssetListView.IsValid())
 	{
 		ConstructedAssetListView->RebuildList();
@@ -183,12 +185,17 @@ void SAdvanceDeletionTab::OnCheckBoxStateChanged(ECheckBoxState NewState, TShare
 	{
 	case ECheckBoxState::Unchecked:
 
-		DebugHeader::Print(AssetData->AssetName.ToString() + TEXT(" is unchecked"), FColor::Red);
+		//DebugHeader::Print(AssetData->AssetName.ToString() + TEXT(" is unchecked"), FColor::Red);
+		if (AssetsDataToDeleteArray.Contains(AssetData))
+		{
+			AssetsDataToDeleteArray.Remove(AssetData);
+		}
 		break;
 
 	case ECheckBoxState::Checked:
 
-		DebugHeader::Print(AssetData->AssetName.ToString() + TEXT(" is checked"), FColor::Green);
+		//DebugHeader::Print(AssetData->AssetName.ToString() + TEXT(" is checked"), FColor::Green);
+		AssetsDataToDeleteArray.AddUnique(AssetData);
 		break;
 
 	case ECheckBoxState::Undetermined:
@@ -259,7 +266,40 @@ TSharedRef<SButton> SAdvanceDeletionTab::ConstructDeleteAllButton()
 
 FReply SAdvanceDeletionTab::OnDeleteAllButtonClicked()
 {
-	DebugHeader::Print(TEXT("Delete All Button Clicked"), FColor::Cyan);
+	//DebugHeader::Print(TEXT("Delete All Button Clicked"), FColor::Cyan);
+	if (AssetsDataToDeleteArray.Num() == 0)
+	{
+		DebugHeader::ShowMsgDialog(EAppMsgType::Ok, TEXT("No asset currently selected"));
+		return FReply::Handled();
+	}
+
+	TArray<FAssetData> AssetDataToDelete;
+	//需要将数组中的共享指针转换成数组对象
+	for (const TSharedPtr<FAssetData>& Data:AssetsDataToDeleteArray)
+	{
+		AssetDataToDelete.Add(*Data.Get());
+	}
+
+	//动态加载 SuperManager 模块
+	FSuperManagerModule& SuperManagerModule =
+		FModuleManager::LoadModuleChecked<FSuperManagerModule>(TEXT("SuperManager"));
+
+	const bool bAssetsDeleted = SuperManagerModule.DeleteMultipleAssetForAssetList(AssetDataToDelete);
+
+	if (bAssetsDeleted)
+	{
+		//在视图列表数组中删除选中的资产数据，之后调用刷新视图列表函数
+		for (const TSharedPtr<FAssetData>& DeletedDate:AssetsDataToDeleteArray)
+		{
+			if (StoredAssetsData.Contains(DeletedDate))
+			{
+				StoredAssetsData.Remove(DeletedDate);
+			}
+		}
+
+		RefreshAssetListView();
+	}
+
 	return FReply::Handled();
 }
 
