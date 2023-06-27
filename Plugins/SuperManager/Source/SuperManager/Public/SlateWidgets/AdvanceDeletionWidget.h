@@ -20,6 +20,8 @@ public:
 
 private:
 	TArray< TSharedPtr<FAssetData> > StoredAssetsData;
+	TArray< TSharedRef<SCheckBox> > CheckBoxesArray;//用于保存复选框对象
+	TArray< TSharedPtr<FAssetData> > AssetsDataToDeleteArray;
 
 	TSharedRef< SListView< TSharedPtr<FAssetData> > > ConstructAssetListView(); // 构造列表视图的函数
 	TSharedPtr< SListView< TSharedPtr<FAssetData> > > ConstructedAssetListView; // 保存列表视图对象的引用
@@ -45,7 +47,7 @@ private:
 	FReply OnDeleteAllButtonClicked();
 
 	TSharedRef<SButton> ConstructSelectAllButton();
-	FReply OnSelectedAllButtonClicked();
+	FReply OnSelectAllButtonClicked();
 
 	TSharedRef<SButton> ConstructDeselectAllButton();
 	FReply OnDeselectAllButtonClicked();
@@ -53,8 +55,6 @@ private:
 	TSharedRef<STextBlock> ConstructTextForTabButton(const FString& TextContent);
 
 #pragma endregion
-
-	TArray< TSharedPtr<FAssetData> > AssetsDataToDeleteArray;
 
 	FSlateFontInfo GetEmbossedTextFont() const { return FCoreStyle::Get().GetFontStyle(FName("EmbossedText")); }
 };
