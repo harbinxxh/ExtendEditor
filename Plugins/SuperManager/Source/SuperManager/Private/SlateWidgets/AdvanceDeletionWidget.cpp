@@ -6,6 +6,8 @@
 #include "DebugHeader.h"
 #include "SuperManager.h"
 
+#define ListAll TEXT("List All Available Assets")
+
 void SAdvanceDeletionTab::Construct(const FArguments& InArgs)
 {
 	bCanSupportFocus = true;
@@ -13,6 +15,8 @@ void SAdvanceDeletionTab::Construct(const FArguments& InArgs)
 	StoredAssetsData = InArgs._AssetsDataToStore;
 	CheckBoxesArray.Empty();
 	AssetsDataToDeleteArray.Empty();
+
+	ComboBoxSourceItems.Add(MakeShared<FString>(ListAll));
 
 	FSlateFontInfo TitleTextFont = FCoreStyle::Get().GetFontStyle(FName("EmbossedText"));
 	TitleTextFont.Size = 30;
@@ -35,10 +39,17 @@ void SAdvanceDeletionTab::Construct(const FArguments& InArgs)
 
 		//下拉列表框
 		//SecondSlot for drop down to specify the listing condition and help text
-		+SVerticalBox::Slot()
+	+SVerticalBox::Slot()
 		.AutoHeight()
 		[
 			SNew(SHorizontalBox)
+
+			//Combo Box Slot
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				ConstructComboBox()
+			]
 		]
 		
 		//获取资产列表
@@ -109,6 +120,40 @@ void SAdvanceDeletionTab::RefreshAssetListView()
 		ConstructedAssetListView->RebuildList();
 	}
 }
+
+#pragma region ComboBoxForListingCondition
+
+TSharedRef< SComboBox<TSharedPtr<FString>> > SAdvanceDeletionTab::ConstructComboBox()
+{
+	TSharedRef< SComboBox<TSharedPtr<FString>> > ConstructedComboBox =
+		SNew(SComboBox<TSharedPtr<FString>>)
+		.OptionsSource(&ComboBoxSourceItems)
+		.OnGenerateWidget(this, &SAdvanceDeletionTab::OnGenerateComboContent)
+		.OnSelectionChanged(this, &SAdvanceDeletionTab::OnComboSelectionChanged)
+		[
+			SAssignNew(ComboDisplayTextBlock, STextBlock)
+			.Text(FText::FromString(TEXT("List Assets Option")))
+		];
+
+	return ConstructedComboBox;
+}
+
+TSharedRef<SWidget> SAdvanceDeletionTab::OnGenerateComboContent(TSharedPtr<FString> SourceItem)
+{
+	TSharedRef<STextBlock> ContructedComboText = SNew(STextBlock)
+		.Text(FText::FromString(*SourceItem.Get()));
+
+	return ContructedComboText;
+}
+
+void SAdvanceDeletionTab::OnComboSelectionChanged(TSharedPtr<FString> SelectedOption, ESelectInfo::Type InSelectInfo)
+{
+	DebugHeader::Print(*SelectedOption.Get(), FColor::Cyan);
+
+	ComboDisplayTextBlock->SetText(FText::FromString(*SelectedOption.Get()));
+}
+
+#pragma endregion
 
 #pragma region RowWidgetForAssetListView
 
