@@ -315,6 +315,23 @@ bool FSuperManagerModule::DeleteMultipleAssetForAssetList(const TArray<FAssetDat
 	return false;
 }
 
+void FSuperManagerModule::ListUnusedAssetsForAssetList(const TArray< TSharedPtr<FAssetData> >& AssetsDataToFilter, TArray< TSharedPtr<FAssetData> >& OutUnusedAssetsData)
+{
+	OutUnusedAssetsData.Empty();
+
+	for (const TSharedPtr<FAssetData>& DataSharedPtr:AssetsDataToFilter)
+	{
+		//查找未使用的资产
+		TArray<FString> AssetReferencers =
+			UEditorAssetLibrary::FindPackageReferencersForAsset(DataSharedPtr->ObjectPath.ToString());
+
+		if (AssetReferencers.Num() == 0)
+		{
+			OutUnusedAssetsData.Add(DataSharedPtr);
+		}
+	}
+}
+
 #pragma endregion
 
 #undef LOCTEXT_NAMESPACE

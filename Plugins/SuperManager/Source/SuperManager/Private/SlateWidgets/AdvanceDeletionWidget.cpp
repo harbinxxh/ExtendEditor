@@ -7,16 +7,19 @@
 #include "SuperManager.h"
 
 #define ListAll TEXT("List All Available Assets")
+#define ListUnused TEXT("List Unused Assets")
 
 void SAdvanceDeletionTab::Construct(const FArguments& InArgs)
 {
 	bCanSupportFocus = true;
 
 	StoredAssetsData = InArgs._AssetsDataToStore;
+	DisplayedAssetsData = StoredAssetsData;
 	CheckBoxesArray.Empty();
 	AssetsDataToDeleteArray.Empty();
 
 	ComboBoxSourceItems.Add(MakeShared<FString>(ListAll));
+	ComboBoxSourceItems.Add(MakeShared<FString>(ListUnused));
 
 	FSlateFontInfo TitleTextFont = FCoreStyle::Get().GetFontStyle(FName("EmbossedText"));
 	TitleTextFont.Size = 30;
@@ -104,7 +107,7 @@ TSharedRef< SListView< TSharedPtr<FAssetData> > > SAdvanceDeletionTab::Construct
 {
 	ConstructedAssetListView = SNew(SListView< TSharedPtr<FAssetData> >)
 		.ItemHeight(24.f)
-		.ListItemsSource(&StoredAssetsData)
+		.ListItemsSource(&DisplayedAssetsData)
 		.OnGenerateRow(this, &SAdvanceDeletionTab::OnGenerateRowForList);
 
 	return ConstructedAssetListView.ToSharedRef();
@@ -151,6 +154,22 @@ void SAdvanceDeletionTab::OnComboSelectionChanged(TSharedPtr<FString> SelectedOp
 	DebugHeader::Print(*SelectedOption.Get(), FColor::Cyan);
 
 	ComboDisplayTextBlock->SetText(FText::FromString(*SelectedOption.Get()));
+
+	//加载 SuperManager 模块
+	FSuperManagerModule& SuperManagerModule =
+		FModuleManager::LoadModuleChecked<FSuperManagerModule>(TEXT("SuperManager"));
+
+	//Pass data for our module to filter based on the selected option
+	if (*SelectedOption.Get() == ListAll)
+	{
+		//List all stored asset data
+	}
+	else if (*SelectedOption.Get() == ListUnused)
+	{
+		//List all unused assets
+		SuperManagerModule.ListUnusedAssetsForAssetList(StoredAssetsData, DisplayedAssetsData);
+		RefreshAssetListView();
+	}
 }
 
 #pragma endregion

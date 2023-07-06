@@ -20,6 +20,7 @@ public:
 
 private:
 	TArray< TSharedPtr<FAssetData> > StoredAssetsData;
+	TArray< TSharedPtr<FAssetData> > DisplayedAssetsData;//保存符合过滤条件的资产数据
 	TArray< TSharedRef<SCheckBox> > CheckBoxesArray;//用于保存复选框对象
 	TArray< TSharedPtr<FAssetData> > AssetsDataToDeleteArray;
 
