@@ -333,6 +333,36 @@ void FSuperManagerModule::ListUnusedAssetsForAssetList(const TArray< TSharedPtr<
 	}
 }
 
+void FSuperManagerModule::ListSameNameAssetsForAssetList(const TArray< TSharedPtr<FAssetData> >& AssetsDataToFilter, TArray< TSharedPtr<FAssetData> >& OutSameNameAssetsData)
+{
+	OutSameNameAssetsData.Empty();
+
+	//MultiMap for supporting finding assets with same name
+	TMultiMap<FString, TSharedPtr<FAssetData>> AssetsInfoMultiMap;
+
+	for (const TSharedPtr<FAssetData>& DataSharedPtr:AssetsDataToFilter)
+	{
+		AssetsInfoMultiMap.Emplace(DataSharedPtr->AssetName.ToString(), DataSharedPtr);
+	}
+
+	for (const TSharedPtr<FAssetData>& DataSharedPtr:AssetsDataToFilter)
+	{
+		TArray< TSharedPtr<FAssetData> > OutAssetsData;
+		AssetsInfoMultiMap.MultiFind(DataSharedPtr->AssetName.ToString(), OutAssetsData);
+
+		if (OutAssetsData.Num() <= 1) continue;
+		
+		//如果 OutAssetsData 数组数量大于1，表示有多个名称相同的资产。
+		for (const TSharedPtr<FAssetData>& SameNameData:OutAssetsData)
+		{
+			if (SameNameData.IsValid())
+			{
+				OutSameNameAssetsData.AddUnique(SameNameData);
+			}
+		}
+	}
+}
+
 #pragma endregion
 
 #undef LOCTEXT_NAMESPACE

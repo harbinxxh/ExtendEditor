@@ -36,7 +36,8 @@ private:
 
 	TSharedRef<SWidget> OnGenerateComboContent(TSharedPtr<FString> SourceItem);//生成条件选项控件
 
-	void OnComboSelectionChanged(TSharedPtr<FString> SelectedOption, ESelectInfo::Type InSelectInfo);//下拉框选择函数
+	//下拉框选择函数
+	void OnComboSelectionChanged(TSharedPtr<FString> SelectedOption, ESelectInfo::Type InSelectInfo);
 
 	TSharedPtr<STextBlock> ComboDisplayTextBlock;
 
