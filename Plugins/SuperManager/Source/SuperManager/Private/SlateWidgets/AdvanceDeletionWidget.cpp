@@ -151,7 +151,7 @@ TSharedRef<SWidget> SAdvanceDeletionTab::OnGenerateComboContent(TSharedPtr<FStri
 
 void SAdvanceDeletionTab::OnComboSelectionChanged(TSharedPtr<FString> SelectedOption, ESelectInfo::Type InSelectInfo)
 {
-	DebugHeader::Print(*SelectedOption.Get(), FColor::Cyan);
+	//DebugHeader::Print(*SelectedOption.Get(), FColor::Cyan);
 
 	ComboDisplayTextBlock->SetText(FText::FromString(*SelectedOption.Get()));
 
@@ -163,6 +163,8 @@ void SAdvanceDeletionTab::OnComboSelectionChanged(TSharedPtr<FString> SelectedOp
 	if (*SelectedOption.Get() == ListAll)
 	{
 		//List all stored asset data
+		DisplayedAssetsData = StoredAssetsData;
+		RefreshAssetListView();
 	}
 	else if (*SelectedOption.Get() == ListUnused)
 	{
@@ -363,6 +365,11 @@ FReply SAdvanceDeletionTab::OnDeleteAllButtonClicked()
 			if (StoredAssetsData.Contains(DeletedDate))
 			{
 				StoredAssetsData.Remove(DeletedDate);
+			}
+
+			if (DisplayedAssetsData.Contains(DeletedDate))
+			{
+				DisplayedAssetsData.Remove(DeletedDate);
 			}
 		}
 
