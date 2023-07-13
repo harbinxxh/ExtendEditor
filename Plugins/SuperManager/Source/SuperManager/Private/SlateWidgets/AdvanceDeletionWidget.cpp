@@ -57,6 +57,20 @@ void SAdvanceDeletionTab::Construct(const FArguments& InArgs)
 			[
 				ConstructComboBox()
 			]
+
+			//Help text for combo box slot
+			+SHorizontalBox::Slot()
+			.FillWidth(.6f)
+			[
+				ConstructComboHelpTexts(TEXT("Specify the listing condition in the drop. Left mouse click to go to where asset is located."), ETextJustify::Center)
+			]
+
+			//Help text for folder path
+			+SHorizontalBox::Slot()
+			.FillWidth(.1f)
+			[
+				ConstructComboHelpTexts(TEXT("Current Folder:\n") + InArgs._CurrentSelectedFolder, ETextJustify::Center)
+			]
 		]
 		
 		//获取资产列表
@@ -188,6 +202,17 @@ void SAdvanceDeletionTab::OnComboSelectionChanged(TSharedPtr<FString> SelectedOp
 #pragma endregion
 
 #pragma region RowWidgetForAssetListView
+//构建文本框函数:文本内容、文本对齐方式
+TSharedRef<STextBlock> SAdvanceDeletionTab::ConstructComboHelpTexts(const FString& TextContent, ETextJustify::Type TextJustify)
+{
+	TSharedRef<STextBlock> ConstructedHelpText =
+		SNew(STextBlock)
+		.Text(FText::FromString(TextContent))
+		.Justification(TextJustify)
+		.AutoWrapText(true);
+
+	return ConstructedHelpText;
+}
 
 TSharedRef<ITableRow> SAdvanceDeletionTab::OnGenerateRowForList(TSharedPtr<FAssetData> AssetDataToDisplay, const TSharedRef<STableViewBase>& OwnerTable)
 {
