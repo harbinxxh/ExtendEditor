@@ -46,6 +46,8 @@ private:
 #pragma region RowWidgetForAssetListView
 
 	TSharedRef<ITableRow> OnGenerateRowForList(TSharedPtr<FAssetData> AssetDataToDisplay, const TSharedRef<STableViewBase>& OwnerTable);
+	//鼠标点击行回调函数
+	void OnRowWidgetMouseButtonClicked(TSharedPtr<FAssetData> ClickedData);
 
 	TSharedRef<SCheckBox> ConstructCheckBox(const TSharedPtr<FAssetData>& AssetDataToDisplay);
 	void OnCheckBoxStateChanged(ECheckBoxState NewState, TSharedPtr<FAssetData> AssetData);

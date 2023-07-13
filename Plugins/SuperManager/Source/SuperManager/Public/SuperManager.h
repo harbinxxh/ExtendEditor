@@ -50,6 +50,7 @@ public:
 	bool DeleteMultipleAssetForAssetList(const TArray<FAssetData>& AssetsToDelete);
 	void ListUnusedAssetsForAssetList(const TArray< TSharedPtr<FAssetData> >& AssetsDataToFilter, TArray< TSharedPtr<FAssetData> >& OutUnusedAssetsData);
 	void ListSameNameAssetsForAssetList(const TArray< TSharedPtr<FAssetData> >& AssetsDataToFilter, TArray< TSharedPtr<FAssetData> >& OutSameNameAssetsData);
-	
+	void SyncCBToClickedAssetForAssetList(const FString& AssetPathToSync);//将内容浏览器同步到给定的资源
+
 #pragma endregion
 };
